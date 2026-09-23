@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications Center - CampusPulse AI 360{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-extrabold text-white flex items-center gap-2">
+        <i data-lucide="bell" class="w-5 h-5 text-amber-400"></i> Notification Center
+      </h1>
+      <p class="text-xs text-slate-400 mt-1">In-app notifications for urgent notices, deadlines, and acknowledgements.</p>
+    </div>
+    {% if notifications %}
+      <form action="{{ url_for('notifications') }}" method="POST">
+        <button type="submit" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 transition">
+          Mark All as Read
+        </button>
+      </form>
+    {% endif %}
+  </div>
+
+  <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden divide-y divide-slate-800">
+    {% for notif in notifications %}
+      <div class="p-4 flex items-center justify-between gap-4 {% if not notif.is_read %} bg-amber-500/5 {% endif %}">
+        <div class="flex items-start gap-3">
+          <div class="p-2 rounded-lg mt-0.5
+            {% if notif.type == 'EMERGENCY' %} bg-rose-500/20 text-rose-400
+            {% elif notif.type == 'URGENT' %} bg-amber-500/20 text-amber-400
+            {% else %} bg-indigo-500/20 text-indigo-400 {% endif %}">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white">{{ notif.message }}</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">{{ notif.created_at.strftime('%b %d, %Y %H:%M') }}</div>
+          </div>
+        </div>
+        {% if notif.notice_id %}
+          <a href="{{ url_for('notice_detail', notice_id=notif.notice_id) }}" class="px-3 py-1.5 rounded bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 text-xs font-semibold border border-indigo-500/30 transition flex-shrink-0">
+            Open Notice
+          </a>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="text-center py-12 text-slate-500 text-xs">
+        No notifications found.
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

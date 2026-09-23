@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Personalized Student Feed - CampusPulse AI 360{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+  <!-- Welcome Banner -->
+  <div class="bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-950 p-6 rounded-2xl border border-indigo-900/40 flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-extrabold text-white tracking-tight">
+        Welcome back, <span class="text-indigo-400">{{ current_user.name }}</span>
+      </h1>
+      <p class="text-xs text-slate-400 mt-1">
+        Personalized Feed for <span class="font-bold text-slate-200">{{ current_user.department or 'General' }}</span> | <span class="font-bold text-slate-200">{{ current_user.year or 'All Years' }}</span>
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="px-3 py-1.5 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-semibold">
+        AI Tailored Feed
+      </span>
+    </div>
+  </div>
+
+  <!-- SECTION 1: URGENT & EMERGENCY NOTICES -->
+  {% if feed.urgent %}
+  <div class="space-y-3">
+    <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+      <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i> Urgent & Emergency Broadcasts
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {% for n in feed.urgent %}
+        <div class="glass-card p-5 rounded-xl border border-amber-500/30 bg-amber-500/5 relative overflow-hidden flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="px-2 py-0.5 text-[10px] font-extrabold rounded badge-urgent">{{ n.priority }}</span>
+              <span class="text-[11px] text-slate-400 font-medium">{{ n.category }}</span>
+            </div>
+            <h3 class="font-bold text-base text-white hover:text-indigo-300 transition">
+              <a href="{{ url_for('notice_detail', notice_id=n.id) }}">{{ n.title }}</a>
+            </h3>
+            <p class="text-xs text-slate-300 mt-2 line-clamp-2">{{ n.summary or n.content }}</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+            <span class="text-slate-400 font-medium">Deadline: <span class="text-amber-400 font-bold">{{ n.deadline or 'Immediate' }}</span></span>
+            <a href="{{ url_for('notice_detail', notice_id=n.id) }}" class="px-3 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-white font-semibold transition">
+              View & Act →
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- SECTION 2: IMPORTANT FOR YOU -->
+  {% if feed.important_for_you %}
+  <div class="space-y-3">
+    <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+      <i data-lucide="star" class="w-4 h-4 text-indigo-400"></i> Important For You
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {% for n in feed.important_for_you[:4] %}
+        <div class="glass-card glass-card-hover p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 text-[10px] font-extrabold rounded 
+                  {% if n.priority == 'HIGH' %} badge-high {% else %} badge-medium {% endif %}">
+                  {{ n.priority }}
+                </span>
+                {% if not n.is_read %}
+                  <span class="px-1.5 py-0.5 text-[9px] font-extrabold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded">UNREAD</span>
+                {% endif %}
+              </div>
+              <span class="text-[11px] text-slate-400">{{ n.category }}</span>
+            </div>
+            <h3 class="font-bold text-sm text-white hover:text-indigo-300 transition">
+              <a href="{{ url_for('notice_detail', notice_id=n.id) }}">{{ n.title }}</a>
+            </h3>
+            <p class="text-xs text-slate-400 mt-2 line-clamp-2">{{ n.summary or n.content }}</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+            <span class="text-slate-400">Target: <span class="font-semibold text-slate-300">{{ n.audience }}</span></span>
+            <a href="{{ url_for('notice_detail', notice_id=n.id) }}" class="px-3 py-1.5 rounded bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 font-semibold border border-indigo-500/30 transition">
+              Read Details
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- SECTION 3: RECENT NOTICES -->
+  <div class="space-y-3">
+    <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+      <i data-lucide="clock" class="w-4 h-4 text-emerald-400"></i> All Recent Notices
+    </h2>
+    <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+      <div class="divide-y divide-slate-800">
+        {% for n in feed.recent %}
+          <div class="p-4 hover:bg-slate-800/40 transition flex items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 text-[10px] font-extrabold rounded badge-medium">{{ n.priority }}</span>
+                <span class="text-xs text-indigo-400 font-semibold">{{ n.category }}</span>
+                {% if not n.is_read %}
+                  <span class="px-1.5 py-0.5 text-[9px] font-extrabold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded">NEW</span>
+                {% endif %}
+                {% if n.is_acknowledged %}
+                  <span class="px-1.5 py-0.5 text-[9px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded">ACKNOWLEDGED</span>
+                {% endif %}
+              </div>
+              <a href="{{ url_for('notice_detail', notice_id=n.id) }}" class="font-bold text-sm text-white hover:text-indigo-300 block">
+                {{ n.title }}
+              </a>
+              <p class="text-xs text-slate-400 line-clamp-1">{{ n.summary or n.content }}</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <a href="{{ url_for('notice_detail', notice_id=n.id) }}" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
+                Open
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

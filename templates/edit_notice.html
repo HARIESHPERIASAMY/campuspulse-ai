@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Notice - {{ notice.title }} - CampusPulse AI 360{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-xl font-extrabold text-white">Edit Campus Notice</h1>
+    <a href="{{ url_for('admin_notices') }}" class="text-xs text-slate-400 hover:text-white">Cancel & Return</a>
+  </div>
+
+  <form action="{{ url_for('edit_notice', notice_id=notice.id) }}" method="POST" class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1">Title</label>
+      <input type="text" name="title" value="{{ notice.title }}" required class="w-full bg-slate-900 border border-slate-700 text-sm rounded-lg p-2.5 text-white">
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Category</label>
+        <select name="category" class="w-full bg-slate-900 border border-slate-700 text-sm rounded-lg p-2.5 text-white">
+          {% for c in ['Academic', 'Exam', 'Placement', 'Internship', 'Workshop', 'Event', 'Scholarship', 'Fees', 'Emergency', 'General'] %}
+            <option value="{{ c }}" {% if notice.category == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Priority</label>
+        <select name="priority" class="w-full bg-slate-900 border border-slate-700 text-sm rounded-lg p-2.5 text-white">
+          {% for p in ['LOW', 'MEDIUM', 'HIGH', 'URGENT', 'CRITICAL'] %}
+            <option value="{{ p }}" {% if notice.priority == p %}selected{% endif %}>{{ p }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Department</label>
+        <select name="department" class="w-full bg-slate-900 border border-slate-700 text-sm rounded-lg p-2.5 text-white">
+          {% for d in ['ALL', 'CSE', 'ECE', 'MECH', 'CIVIL', 'EEE', 'IT', 'AI'] %}
+            <option value="{{ d }}" {% if notice.department == d %}selected{% endif %}>{{ d }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Year</label>
+        <select name="year" class="w-full bg-slate-900 border border-slate-700 text-sm rounded-lg p-2.5 text-white">
+          {% for y in ['ALL', 'FIRST YEAR', 'SECOND YEAR', 'THIRD YEAR', 'FINAL YEAR'] %}
+            <option value="{{ y }}" {% if notice.year == y %}selected{% endif %}>{{ y }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1">Deadline Date</label>
+      <input type="date" name="deadline" value="{{ notice.deadline or '' }}" class="w-full bg-slate-900 border border-slate-700 text-sm rounded-lg p-2.5 text-white">
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1">Content</label>
+      <textarea name="content" rows="8" required class="w-full bg-slate-900 border border-slate-700 text-sm rounded-lg p-3 text-white">{{ notice.content }}</textarea>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <input type="checkbox" name="requires_acknowledgement" id="editAck" {% if notice.requires_acknowledgement %}checked{% endif %} class="w-4 h-4 rounded bg-slate-900 border-slate-700">
+      <label for="editAck" class="text-xs font-semibold text-slate-300">Mandatory Acknowledgement Required</label>
+    </div>
+
+    <div class="pt-4 border-t border-slate-800 flex justify-end gap-2">
+      <button type="submit" class="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition">
+        Save Changes
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

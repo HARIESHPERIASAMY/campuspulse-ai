@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Notice Search - CampusPulse AI 360{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <!-- Search Form Header -->
+  <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+    <h1 class="text-xl font-extrabold text-white flex items-center gap-2">
+      <i data-lucide="search" class="w-5 h-5 text-indigo-400"></i> Intelligent Multi-Filter & Natural Search
+    </h1>
+
+    <form action="{{ url_for('search') }}" method="GET" class="space-y-4">
+      <div class="relative">
+        <i data-lucide="sparkles" class="w-4 h-4 absolute left-3 top-3.5 text-purple-400"></i>
+        <input type="text" name="q" value="{{ query }}" placeholder="Try natural search e.g. 'placement notices before Friday' or 'urgent exam'..."
+               class="w-full bg-slate-900 border border-slate-700 text-sm rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1">Category</label>
+          <select name="category" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+            <option value="ALL" {% if category == 'ALL' %}selected{% endif %}>All Categories</option>
+            <option value="Academic" {% if category == 'Academic' %}selected{% endif %}>Academic</option>
+            <option value="Exam" {% if category == 'Exam' %}selected{% endif %}>Exam</option>
+            <option value="Placement" {% if category == 'Placement' %}selected{% endif %}>Placement</option>
+            <option value="Internship" {% if category == 'Internship' %}selected{% endif %}>Internship</option>
+            <option value="Emergency" {% if category == 'Emergency' %}selected{% endif %}>Emergency</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1">Priority</label>
+          <select name="priority" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+            <option value="ALL" {% if priority == 'ALL' %}selected{% endif %}>All Priorities</option>
+            <option value="LOW" {% if priority == 'LOW' %}selected{% endif %}>LOW</option>
+            <option value="MEDIUM" {% if priority == 'MEDIUM' %}selected{% endif %}>MEDIUM</option>
+            <option value="HIGH" {% if priority == 'HIGH' %}selected{% endif %}>HIGH</option>
+            <option value="URGENT" {% if priority == 'URGENT' %}selected{% endif %}>URGENT</option>
+            <option value="CRITICAL" {% if priority == 'CRITICAL' %}selected{% endif %}>CRITICAL</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1">Department</label>
+          <select name="department" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+            <option value="ALL" {% if department == 'ALL' %}selected{% endif %}>All Departments</option>
+            <option value="CSE" {% if department == 'CSE' %}selected{% endif %}>CSE</option>
+            <option value="ECE" {% if department == 'ECE' %}selected{% endif %}>ECE</option>
+            <option value="MECH" {% if department == 'MECH' %}selected{% endif %}>MECH</option>
+          </select>
+        </div>
+
+        <div class="flex items-end">
+          <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 rounded-lg text-xs transition shadow-lg shadow-indigo-600/30">
+            Execute Search
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- AI Intent Feedback if active -->
+  {% if ai_intent and (ai_intent.category or ai_intent.priority or ai_intent.deadline_filter) %}
+  <div class="p-4 rounded-xl bg-purple-950/40 border border-purple-800/40 text-xs text-purple-200 flex items-center gap-2">
+    <i data-lucide="bot" class="w-4 h-4 text-purple-400"></i>
+    <span><strong class="text-white">AI Query Intent Interpreted:</strong>
+      {% if ai_intent.category %} Category = <span class="font-bold text-purple-300">{{ ai_intent.category }}</span> | {% endif %}
+      {% if ai_intent.priority %} Priority = <span class="font-bold text-purple-300">{{ ai_intent.priority }}</span> | {% endif %}
+      {% if ai_intent.deadline_filter %} Deadline Filter = <span class="font-bold text-purple-300">{{ ai_intent.deadline_filter }}</span> {% endif %}
+    </span>
+  </div>
+  {% endif %}
+
+  <!-- Search Results Count -->
+  <div class="text-xs text-slate-400 font-semibold">
+    Found <span class="text-white font-bold">{{ count }}</span> notice result(s)
+  </div>
+
+  <!-- Results List -->
+  <div class="space-y-4">
+    {% for n in results %}
+      <div class="glass-card p-5 rounded-xl border border-slate-800 hover:border-slate-700 transition flex items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 text-[10px] font-extrabold rounded badge-medium">{{ n.priority }}</span>
+            <span class="text-xs text-indigo-400 font-semibold">{{ n.category }}</span>
+            <span class="text-xs text-slate-500">Audience: {{ n.audience }}</span>
+          </div>
+          <a href="{{ url_for('notice_detail', notice_id=n.id) }}" class="font-bold text-base text-white hover:text-indigo-300 block">
+            {{ n.title }}
+          </a>
+          <p class="text-xs text-slate-400 line-clamp-2">{{ n.summary or n.content }}</p>
+        </div>
+        <a href="{{ url_for('notice_detail', notice_id=n.id) }}" class="px-4 py-2 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 font-semibold text-xs border border-indigo-500/30 transition flex-shrink-0">
+          View Notice
+        </a>
+      </div>
+    {% else %}
+      <div class="text-center py-12 glass-card rounded-2xl text-slate-500 text-xs">
+        No notices found matching search criteria.
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

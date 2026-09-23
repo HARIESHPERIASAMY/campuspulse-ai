@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}System Audit Logs - CampusPulse AI 360{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <div class="flex items-center justify-between bg-slate-900 p-6 rounded-2xl border border-slate-800">
+    <div>
+      <h1 class="text-xl font-extrabold text-white flex items-center gap-2">
+        <i data-lucide="shield-check" class="w-5 h-5 text-cyan-400"></i> Security & Operation Audit Logs
+      </h1>
+      <p class="text-xs text-slate-400 mt-1">Full audit trail: Logins, Admin Verifications, Notice CRUD, Read Events, Acknowledgements.</p>
+    </div>
+  </div>
+
+  <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-300">
+        <thead class="bg-slate-900/80 text-slate-400 font-semibold uppercase tracking-wider">
+          <tr>
+            <th class="p-4">Timestamp</th>
+            <th class="p-4">User</th>
+            <th class="p-4">Action</th>
+            <th class="p-4">Notice ID</th>
+            <th class="p-4">Details</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800 font-mono">
+          {% for log in logs %}
+            <tr class="hover:bg-slate-800/40 transition">
+              <td class="p-4 text-slate-400 whitespace-nowrap">{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+              <td class="p-4 text-white font-sans font-semibold">{{ log.user.name if log.user else 'System' }}</td>
+              <td class="p-4">
+                <span class="px-2 py-0.5 text-[10px] font-bold rounded
+                  {% if 'ADMIN' in log.action or 'LOGIN' in log.action %} bg-purple-500/20 text-purple-300 border border-purple-500/30
+                  {% elif 'PUBLISH' in log.action or 'ACKNOWLEDGE' in log.action %} bg-emerald-500/20 text-emerald-300 border border-emerald-500/30
+                  {% else %} bg-slate-800 text-slate-300 border border-slate-700 {% endif %}">
+                  {{ log.action }}
+                </span>
+              </td>
+              <td class="p-4 text-indigo-400">{{ log.notice_id or '-' }}</td>
+              <td class="p-4 text-slate-300 font-sans">{{ log.details or '-' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

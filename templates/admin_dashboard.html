@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Communication Assurance Dashboard - CampusPulse AI 360{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <!-- Top Title Banner -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 p-6 rounded-2xl border border-slate-800">
+    <div>
+      <h1 class="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
+        Campus Communication Assurance Center
+        <span class="px-2 py-0.5 text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full font-semibold">Live System</span>
+      </h1>
+      <p class="text-xs text-slate-400 mt-1">Real-time engagement measurement: Targeted → Viewed → Read → Acknowledged</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="{{ url_for('create_notice') }}" class="px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition shadow-lg shadow-indigo-600/30 flex items-center gap-2">
+        <i data-lucide="sparkles" class="w-4 h-4"></i> Create AI Notice
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI Grid Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="glass-card p-5 rounded-xl border border-slate-800">
+      <div class="flex items-center justify-between text-slate-400 mb-2">
+        <span class="text-xs font-semibold uppercase tracking-wider">Total Notices</span>
+        <i data-lucide="file-text" class="w-4 h-4 text-indigo-400"></i>
+      </div>
+      <div class="text-2xl font-extrabold text-white">{{ kpis.total_notices }}</div>
+      <div class="text-[11px] text-slate-400 mt-1"><span class="text-emerald-400 font-bold">{{ kpis.published_notices }}</span> Published | <span class="text-amber-400 font-bold">{{ kpis.draft_notices }}</span> Drafts</div>
+    </div>
+
+    <div class="glass-card p-5 rounded-xl border border-slate-800">
+      <div class="flex items-center justify-between text-slate-400 mb-2">
+        <span class="text-xs font-semibold uppercase tracking-wider">Urgent & Emergency</span>
+        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i>
+      </div>
+      <div class="text-2xl font-extrabold text-amber-400">{{ kpis.urgent_notices }}</div>
+      <div class="text-[11px] text-slate-400 mt-1">High-priority active notices requiring monitoring</div>
+    </div>
+
+    <div class="glass-card p-5 rounded-xl border border-slate-800">
+      <div class="flex items-center justify-between text-slate-400 mb-2">
+        <span class="text-xs font-semibold uppercase tracking-wider">Total Verified Reads</span>
+        <i data-lucide="eye" class="w-4 h-4 text-blue-400"></i>
+      </div>
+      <div class="text-2xl font-extrabold text-blue-400">{{ kpis.total_reads }}</div>
+      <div class="text-[11px] text-slate-400 mt-1">Confirmed student view engagements</div>
+    </div>
+
+    <div class="glass-card p-5 rounded-xl border border-slate-800">
+      <div class="flex items-center justify-between text-slate-400 mb-2">
+        <span class="text-xs font-semibold uppercase tracking-wider">Acknowledgements</span>
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+      </div>
+      <div class="text-2xl font-extrabold text-emerald-400">{{ kpis.total_acknowledgements }}</div>
+      <div class="text-[11px] text-slate-400 mt-1">Formal student sign-offs recorded</div>
+    </div>
+  </div>
+
+  <!-- Real Communication Risk Banners -->
+  {% if risk_alerts %}
+  <div class="space-y-3">
+    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+      <i data-lucide="shield-alert" class="w-4 h-4 text-rose-400"></i> Active Communication Risk Detection
+    </h3>
+    {% for alert in risk_alerts %}
+      <div class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div class="flex items-start gap-3">
+          <div class="p-2 rounded-lg bg-rose-500/20 text-rose-400 mt-0.5">
+            <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="font-bold text-sm text-white flex items-center gap-2">
+              {{ alert.notice.title }}
+              <span class="px-2 py-0.5 text-[10px] font-extrabold rounded badge-critical">{{ alert.risk.severity }}</span>
+            </div>
+            <p class="text-xs text-rose-300/90 mt-0.5">{{ alert.risk.summary }}</p>
+            <div class="text-[11px] text-slate-400 mt-1"><span class="font-bold text-rose-400">Recommended Action:</span> {{ alert.risk.recommended_action }}</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="{{ url_for('viewer_details', notice_id=alert.notice.id) }}" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition">
+            Inspect Viewers
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Funnel & Category Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Communication Funnel Chart -->
+    <div class="lg:col-span-2 glass-card p-6 rounded-2xl border border-slate-800">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h3 class="font-bold text-base text-white">Aggregated Communication Funnel</h3>
+          <p class="text-xs text-slate-400">Total reach breakdown across all active notices</p>
+        </div>
+        <span class="px-2 py-1 text-xs bg-indigo-500/20 text-indigo-300 rounded font-mono">Live DB Math</span>
+      </div>
+
+      <div class="h-64">
+        <canvas id="funnelChart"></canvas>
+      </div>
+
+      <div class="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-slate-800 text-center">
+        <div>
+          <div class="text-xs text-slate-400">Targeted</div>
+          <div class="text-lg font-bold text-white">{{ funnel.targeted }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-slate-400">Viewed</div>
+          <div class="text-lg font-bold text-blue-400">{{ funnel.viewed }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-slate-400">Read</div>
+          <div class="text-lg font-bold text-purple-400">{{ funnel.read }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-slate-400">Acknowledged</div>
+          <div class="text-lg font-bold text-emerald-400">{{ funnel.acknowledged }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Assistant Shortcut Panel -->
+    <div class="glass-card p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="p-2 rounded-xl bg-purple-500/20 text-purple-400">
+            <i data-lucide="bot" class="w-5 h-5"></i>
+          </div>
+          <h3 class="font-bold text-base text-white">Admin AI Assistant</h3>
+        </div>
+        <p class="text-xs text-slate-400 mb-4">Ask natural language questions regarding notice engagement, deadlines, or viewer compliance directly from live database data.</p>
+        
+        <div class="space-y-2 text-xs">
+          <a href="{{ url_for('admin_ai_assistant', q='Which notices expire today?') }}" class="block p-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 text-slate-300 transition border border-slate-700/50">
+            "Which notices expire today?"
+          </a>
+          <a href="{{ url_for('admin_ai_assistant', q='Which notices need attention?') }}" class="block p-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 text-slate-300 transition border border-slate-700/50">
+            "Which notices need attention?"
+          </a>
+          <a href="{{ url_for('admin_ai_assistant', q='Who has not acknowledged the placement notice?') }}" class="block p-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 text-slate-300 transition border border-slate-700/50">
+            "Who has not acknowledged the placement notice?"
+          </a>
+        </div>
+      </div>
+
+      <a href="{{ url_for('admin_ai_assistant') }}" class="mt-6 w-full py-2.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs text-center block transition shadow-lg shadow-purple-600/30">
+        Open AI Assistant Terminal
+      </a>
+    </div>
+  </div>
+
+  <!-- Recent Notices Table -->
+  <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+    <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+      <h3 class="font-bold text-base text-white">Recent Notices</h3>
+      <a href="{{ url_for('admin_notices') }}" class="text-xs font-semibold text-indigo-400 hover:text-indigo-300">View All Notices →</a>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-300">
+        <thead class="bg-slate-900/80 text-slate-400 font-semibold uppercase tracking-wider">
+          <tr>
+            <th class="p-4">Title & Category</th>
+            <th class="p-4">Audience</th>
+            <th class="p-4">Priority</th>
+            <th class="p-4">Status</th>
+            <th class="p-4">Deadline</th>
+            <th class="p-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800">
+          {% for n in recent_notices %}
+            <tr class="hover:bg-slate-800/40 transition">
+              <td class="p-4 font-semibold text-white">
+                <div>{{ n.title }}</div>
+                <div class="text-[11px] font-normal text-slate-400">{{ n.category }}</div>
+              </td>
+              <td class="p-4 text-slate-400">{{ n.audience }}</td>
+              <td class="p-4">
+                <span class="px-2 py-0.5 text-[10px] font-extrabold rounded 
+                  {% if n.priority == 'CRITICAL' %} badge-critical
+                  {% elif n.priority == 'URGENT' %} badge-urgent
+                  {% elif n.priority == 'HIGH' %} badge-high
+                  {% elif n.priority == 'MEDIUM' %} badge-medium
+                  {% else %} badge-low {% endif %}">
+                  {{ n.priority }}
+                </span>
+              </td>
+              <td class="p-4">
+                <span class="px-2 py-0.5 text-[10px] font-bold rounded
+                  {% if n.status == 'PUBLISHED' %} status-published
+                  {% elif n.status == 'DRAFT' %} status-draft
+                  {% else %} status-archived {% endif %}">
+                  {{ n.status }}
+                </span>
+              </td>
+              <td class="p-4 text-slate-400">{{ n.deadline or 'N/A' }}</td>
+              <td class="p-4 text-right space-x-2">
+                <a href="{{ url_for('notice_analytics', notice_id=n.id) }}" class="px-2.5 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-indigo-300 font-medium transition">Analytics</a>
+                <a href="{{ url_for('viewer_details', notice_id=n.id) }}" class="px-2.5 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-emerald-300 font-medium transition">Viewers</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('funnelChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Targeted', 'Viewed', 'Read', 'Acknowledged'],
+        datasets: [{
+          label: 'Student Reach',
+          data: [{{ funnel.targeted }}, {{ funnel.viewed }}, {{ funnel.read }}, {{ funnel.acknowledged }}],
+          backgroundColor: [
+            'rgba(99, 102, 241, 0.7)',
+            'rgba(59, 130, 246, 0.7)',
+            'rgba(168, 85, 247, 0.7)',
+            'rgba(34, 197, 94, 0.7)'
+          ],
+          borderColor: [
+            '#6366f1',
+            '#3b82f6',
+            '#a855f7',
+            '#22c55e'
+          ],
+          borderWidth: 1,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+          x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

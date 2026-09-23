@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}My Saved Bookmarks - CampusPulse AI 360{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-extrabold text-white flex items-center gap-2">
+        <i data-lucide="bookmark" class="w-5 h-5 text-rose-400"></i> My Bookmarked Notices
+      </h1>
+      <p class="text-xs text-slate-400 mt-1">Saved campus notices for quick offline reference.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {% for n in notices %}
+      <div class="glass-card p-5 rounded-xl border border-slate-800 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="px-2 py-0.5 text-[10px] font-extrabold rounded badge-medium">{{ n.priority }}</span>
+            <span class="text-xs text-indigo-400 font-semibold">{{ n.category }}</span>
+          </div>
+          <h3 class="font-bold text-sm text-white hover:text-indigo-300">
+            <a href="{{ url_for('notice_detail', notice_id=n.id) }}">{{ n.title }}</a>
+          </h3>
+          <p class="text-xs text-slate-400 mt-2 line-clamp-2">{{ n.summary or n.content }}</p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+          <span class="text-slate-400">Deadline: {{ n.deadline or 'N/A' }}</span>
+          <a href="{{ url_for('notice_detail', notice_id=n.id) }}" class="px-3 py-1.5 rounded bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 font-semibold border border-indigo-500/30 transition">
+            View Details
+          </a>
+        </div>
+      </div>
+    {% else %}
+      <div class="col-span-2 text-center py-12 glass-card rounded-2xl text-slate-500 text-xs">
+        No bookmarked notices yet. Click the bookmark icon on any notice to save it here.
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

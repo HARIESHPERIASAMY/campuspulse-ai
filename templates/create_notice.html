@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}AI Notice Studio - CampusPulse AI 360{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+  <!-- Title Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
+        <i data-lucide="sparkles" class="w-6 h-6 text-indigo-400"></i> AI Notice Studio
+      </h1>
+      <p class="text-xs text-slate-400 mt-1">Compose notices with real-time AI quality scoring, deadline detection, and audience suggestions.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Form Column -->
+    <div class="lg:col-span-7 space-y-4">
+      <form id="createNoticeForm" action="{{ url_for('create_notice') }}" method="POST" class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Notice Title <span class="text-rose-400">*</span></label>
+          <input type="text" name="title" id="noticeTitle" required placeholder="e.g. Final Year CSE Campus Placement Drive Registration"
+                 class="w-full bg-slate-900 border border-slate-700 text-sm rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Category</label>
+            <select name="category" id="noticeCategory" class="w-full bg-slate-900 border border-slate-700 text-sm rounded-lg px-3 py-2 text-white">
+              <option value="Academic">Academic</option>
+              <option value="Exam">Exam</option>
+              <option value="Placement">Placement</option>
+              <option value="Internship">Internship</option>
+              <option value="Workshop">Workshop</option>
+              <option value="Event">Event</option>
+              <option value="Scholarship">Scholarship</option>
+              <option value="Fees">Fees</option>
+              <option value="Emergency">Emergency</option>
+              <option value="General" selected>General</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Target Priority</label>
+            <select name="priority" id="noticePriority" class="w-full bg-slate-900 border border-slate-700 text-sm rounded-lg px-3 py-2 text-white">
+              <option value="LOW">LOW</option>
+              <option value="MEDIUM" selected>MEDIUM</option>
+              <option value="HIGH">HIGH</option>
+              <option value="URGENT">URGENT</option>
+              <option value="CRITICAL">CRITICAL</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Target Department</label>
+            <select name="department" id="noticeDepartment" class="w-full bg-slate-900 border border-slate-700 text-sm rounded-lg px-3 py-2 text-white">
+              <option value="ALL">ALL DEPARTMENTS</option>
+              <option value="CSE">CSE</option>
+              <option value="ECE">ECE</option>
+              <option value="MECH">MECH</option>
+              <option value="CIVIL">CIVIL</option>
+              <option value="EEE">EEE</option>
+              <option value="IT">IT</option>
+              <option value="AI">AI & DS</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Target Year</label>
+            <select name="year" id="noticeYear" class="w-full bg-slate-900 border border-slate-700 text-sm rounded-lg px-3 py-2 text-white">
+              <option value="ALL">ALL YEARS</option>
+              <option value="FIRST YEAR">FIRST YEAR</option>
+              <option value="SECOND YEAR">SECOND YEAR</option>
+              <option value="THIRD YEAR">THIRD YEAR</option>
+              <option value="FINAL YEAR">FINAL YEAR</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Deadline Date</label>
+            <input type="date" name="deadline" id="noticeDeadline" class="w-full bg-slate-900 border border-slate-700 text-sm rounded-lg px-3 py-2 text-white">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Expiry Date</label>
+            <input type="date" name="expiry_date" id="noticeExpiry" class="w-full bg-slate-900 border border-slate-700 text-sm rounded-lg px-3 py-2 text-white">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Notice Content <span class="text-rose-400">*</span></label>
+          <textarea name="content" id="noticeContent" rows="7" required placeholder="Type full notice text here..."
+                    class="w-full bg-slate-900 border border-slate-700 text-sm rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"></textarea>
+        </div>
+
+        <div class="flex items-center gap-2 pt-2">
+          <input type="checkbox" name="requires_acknowledgement" id="requiresAck" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-indigo-600">
+          <label for="requiresAck" class="text-xs font-medium text-slate-300">Mandatory Student Acknowledgement Required</label>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-between gap-3">
+          <button type="button" id="btnAnalyze" class="px-4 py-2.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 font-semibold text-xs transition flex items-center gap-2">
+            <i data-lucide="cpu" class="w-4 h-4"></i> AI ANALYZE NOTICE
+          </button>
+
+          <div class="flex items-center gap-2">
+            <button type="submit" name="action" value="draft" class="px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">
+              SAVE DRAFT
+            </button>
+            <button type="submit" name="action" value="publish" class="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow-lg shadow-emerald-600/30 flex items-center gap-1.5">
+              <i data-lucide="send" class="w-4 h-4"></i> PUBLISH NOTICE
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- AI Intelligence Panel -->
+    <div class="lg:col-span-5">
+      <div id="aiPanel" class="glass-card p-6 rounded-2xl border border-slate-800 sticky top-6 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h3 class="font-bold text-sm text-white flex items-center gap-2">
+            <i data-lucide="brain-circuit" class="w-4 h-4 text-purple-400"></i> AI Notice Intelligence
+          </h3>
+          <span id="aiScoreBadge" class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+            Score: --
+          </span>
+        </div>
+
+        <div id="aiPlaceholder" class="text-center py-10 text-slate-500 text-xs">
+          <i data-lucide="sparkles" class="w-8 h-8 mx-auto mb-2 text-slate-600"></i>
+          Fill in title and content, then click "AI ANALYZE NOTICE" to view automated insights.
+        </div>
+
+        <div id="aiResults" class="hidden space-y-4 text-xs">
+          <!-- Summary -->
+          <div>
+            <div class="font-bold text-slate-400 mb-1">AI Executive Summary</div>
+            <div id="aiSummary" class="p-2.5 rounded-lg bg-slate-900/80 text-slate-200 border border-slate-800 italic"></div>
+          </div>
+
+          <!-- Key Points -->
+          <div>
+            <div class="font-bold text-slate-400 mb-1">Extracted Key Points</div>
+            <ul id="aiKeyPoints" class="space-y-1 list-disc list-inside text-slate-300"></ul>
+          </div>
+
+          <!-- AI Suggestions Grid -->
+          <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
+            <div class="p-2 rounded bg-slate-900/60 border border-slate-800">
+              <span class="text-slate-500">Audience:</span>
+              <div id="aiAudience" class="font-bold text-indigo-400"></div>
+            </div>
+            <div class="p-2 rounded bg-slate-900/60 border border-slate-800">
+              <span class="text-slate-500">Priority:</span>
+              <div id="aiPriority" class="font-bold text-amber-400"></div>
+            </div>
+            <div class="p-2 rounded bg-slate-900/60 border border-slate-800">
+              <span class="text-slate-500">Deadline:</span>
+              <div id="aiDeadline" class="font-bold text-emerald-400"></div>
+            </div>
+            <div class="p-2 rounded bg-slate-900/60 border border-slate-800">
+              <span class="text-slate-500">Action:</span>
+              <div id="aiAction" class="font-bold text-slate-300 truncate"></div>
+            </div>
+          </div>
+
+          <!-- Quality Recommendations -->
+          <div>
+            <div class="font-bold text-slate-400 mb-1">Quality Recommendations</div>
+            <div id="aiRecommendations" class="space-y-1 text-slate-300"></div>
+          </div>
+
+          <button type="button" id="btnApplySuggestions" class="w-full py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow">
+            APPLY AI SUGGESTIONS
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let latestAiAnalysis = null;
+
+  document.getElementById('btnAnalyze').addEventListener('click', async function() {
+    const title = document.getElementById('noticeTitle').value;
+    const content = document.getElementById('noticeContent').value;
+    
+    if (!title || !content) {
+      alert("Please enter title and content before running AI analysis.");
+      return;
+    }
+
+    const category = document.getElementById('noticeCategory').value;
+    const audience = document.getElementById('noticeDepartment').value;
+    const deadline = document.getElementById('noticeDeadline').value;
+    const reqAck = document.getElementById('requiresAck').checked;
+
+    document.getElementById('aiPlaceholder').innerHTML = '<div class="animate-pulse">Analyzing notice intelligence...</div>';
+    document.getElementById('aiPlaceholder').classList.remove('hidden');
+    document.getElementById('aiResults').classList.add('hidden');
+
+    try {
+      const resp = await fetch("{{ url_for('ai_analyze_notice_ajax') }}", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, category, audience, deadline, requires_acknowledgement: reqAck })
+      });
+
+      const data = await resp.json();
+      latestAiAnalysis = data;
+
+      document.getElementById('aiPlaceholder').classList.add('hidden');
+      document.getElementById('aiResults').classList.remove('hidden');
+
+      document.getElementById('aiScoreBadge').innerText = `Quality Score: ${data.quality_score}/100`;
+      document.getElementById('aiScoreBadge').className = `px-2.5 py-0.5 text-xs font-bold rounded-full border ${data.quality_score >= 80 ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30'}`;
+
+      document.getElementById('aiSummary').innerText = data.summary;
+      
+      const kpList = document.getElementById('aiKeyPoints');
+      kpList.innerHTML = '';
+      (data.key_points || []).forEach(pt => {
+        const li = document.createElement('li');
+        li.innerText = pt;
+        kpList.appendChild(li);
+      });
+
+      document.getElementById('aiAudience').innerText = data.suggested_audience || 'ALL';
+      document.getElementById('aiPriority').innerText = data.suggested_priority || 'MEDIUM';
+      document.getElementById('aiDeadline').innerText = data.detected_deadline || 'None Detected';
+      document.getElementById('aiAction').innerText = data.required_action || 'N/A';
+
+      const recDiv = document.getElementById('aiRecommendations');
+      recDiv.innerHTML = '';
+      (data.recommendations || []).forEach(rec => {
+        const d = document.createElement('div');
+        d.className = "flex items-center gap-1.5 text-amber-300/90";
+        d.innerHTML = `<span>✓</span> <span>${rec}</span>`;
+        recDiv.appendChild(d);
+      });
+
+    } catch (e) {
+      alert("AI analysis error: " + e.message);
+    }
+  });
+
+  document.getElementById('btnApplySuggestions').addEventListener('click', function() {
+    if (!latestAiAnalysis) return;
+    if (latestAiAnalysis.suggested_priority) {
+      document.getElementById('noticePriority').value = latestAiAnalysis.suggested_priority;
+    }
+    if (latestAiAnalysis.suggested_department && latestAiAnalysis.suggested_department !== 'ALL') {
+      document.getElementById('noticeDepartment').value = latestAiAnalysis.suggested_department;
+    }
+    if (latestAiAnalysis.suggested_year && latestAiAnalysis.suggested_year !== 'ALL') {
+      document.getElementById('noticeYear').value = latestAiAnalysis.suggested_year;
+    }
+    if (latestAiAnalysis.detected_deadline) {
+      document.getElementById('noticeDeadline').value = latestAiAnalysis.detected_deadline;
+    }
+    alert("AI suggestions applied to form fields!");
+  });
+</script>
+{% endblock %}

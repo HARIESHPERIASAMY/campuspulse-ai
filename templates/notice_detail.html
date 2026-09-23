@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}{{ notice.title }} - CampusPulse AI 360{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+  <!-- Top Action Bar -->
+  <div class="flex items-center justify-between">
+    <a href="{{ url_for('user_dashboard') }}" class="text-xs font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-1">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Feed
+    </a>
+    <div class="flex items-center gap-2">
+      <a href="{{ url_for('print_notice', notice_id=notice.id) }}" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition">
+        <i data-lucide="printer" class="w-3.5 h-3.5"></i> Printable View
+      </a>
+      <form action="{{ url_for('bookmark_notice', notice_id=notice.id) }}" method="POST" class="inline">
+        <button type="submit" class="px-3 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition
+          {% if is_bookmarked %} bg-rose-500/20 text-rose-300 border-rose-500/30 {% else %} bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700 {% endif %}">
+          <i data-lucide="bookmark" class="w-3.5 h-3.5"></i> {% if is_bookmarked %} Bookmarked {% else %} Bookmark {% endif %}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notice Header Card -->
+  <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+    <div class="flex items-center justify-between gap-2 flex-wrap">
+      <div class="flex items-center gap-2">
+        <span class="px-2.5 py-1 text-xs font-extrabold rounded 
+          {% if notice.priority == 'CRITICAL' %} badge-critical
+          {% elif notice.priority == 'URGENT' %} badge-urgent
+          {% elif notice.priority == 'HIGH' %} badge-high
+          {% else %} badge-medium {% endif %}">
+          {{ notice.priority }}
+        </span>
+        <span class="px-2.5 py-1 text-xs font-bold rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+          {{ notice.category }}
+        </span>
+      </div>
+      <span class="text-xs text-slate-400">Published: {{ notice.created_at.strftime('%b %d, %Y %H:%M') }}</span>
+    </div>
+
+    <h1 class="text-2xl font-extrabold text-white tracking-tight">{{ notice.title }}</h1>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-3 border-t border-slate-800 text-slate-300">
+      <div>
+        <span class="text-slate-500 block">Target Audience</span>
+        <span class="font-bold text-white">{{ notice.audience }}</span>
+      </div>
+      <div>
+        <span class="text-slate-500 block">Department</span>
+        <span class="font-bold text-white">{{ notice.department }}</span>
+      </div>
+      <div>
+        <span class="text-slate-500 block">Deadline</span>
+        <span class="font-bold text-amber-400">{{ notice.deadline or 'No Fixed Deadline' }}</span>
+      </div>
+      <div>
+        <span class="text-slate-500 block">Acknowledgement</span>
+        <span class="font-bold {% if notice.requires_acknowledgement %} text-rose-400 {% else %} text-slate-400 {% endif %}">
+          {% if notice.requires_acknowledgement %} Required {% else %} Optional {% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Executive Summary Banner -->
+  {% if notice.summary %}
+  <div class="p-5 rounded-xl bg-purple-950/40 border border-purple-800/40 space-y-2">
+    <div class="text-xs font-bold text-purple-300 flex items-center gap-2">
+      <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i> AI Generated Executive Summary
+    </div>
+    <p class="text-xs text-purple-100/90 leading-relaxed italic">{{ notice.summary }}</p>
+  </div>
+  {% endif %}
+
+  <!-- Notice Main Content & QR Sidebar -->
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+    <!-- Notice Content Body -->
+    <div class="md:col-span-8 glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+      <h3 class="font-bold text-sm text-slate-400 uppercase tracking-wider">Official Notice Text</h3>
+      <div class="text-sm text-slate-200 leading-relaxed whitespace-pre-line">
+        {{ notice.content }}
+      </div>
+
+      <!-- Mandatory Acknowledgement Box -->
+      {% if notice.requires_acknowledgement %}
+        <div class="mt-6 pt-6 border-t border-slate-800 p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <div class="font-bold text-sm text-white flex items-center gap-1.5">
+              <i data-lucide="check-square" class="w-4 h-4 text-emerald-400"></i> Student Acknowledgement Required
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Please confirm that you have read and understood this notice.</p>
+          </div>
+
+          {% if is_acked %}
+            <span class="px-4 py-2 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-2">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i> ACKNOWLEDGED
+            </span>
+          {% else %}
+            <form action="{{ url_for('acknowledge_notice', notice_id=notice.id) }}" method="POST">
+              <button type="submit" class="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition">
+                ACKNOWLEDGE NOTICE
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- QR Code & Read Stats Sidebar -->
+    <div class="md:col-span-4 space-y-4">
+      <!-- QR Verification Code -->
+      <div class="glass-card p-5 rounded-2xl border border-slate-800 text-center space-y-3">
+        <h3 class="font-bold text-xs text-slate-400 uppercase tracking-wider">Mobile QR Verification</h3>
+        <img src="{{ qr_code_url }}" alt="Notice QR Code" class="w-40 h-40 mx-auto rounded-xl border border-slate-700 bg-white p-2">
+        <p class="text-[11px] text-slate-400">Scan to open mobile public notice verification view.</p>
+      </div>
+
+      <!-- Engagement Verification Status -->
+      <div class="glass-card p-4 rounded-2xl border border-slate-800 space-y-2 text-xs">
+        <div class="font-bold text-slate-400 uppercase tracking-wider mb-2">Read Analytics</div>
+        <div class="flex items-center justify-between text-slate-300">
+          <span>First Read:</span>
+          <span class="font-bold text-white">{{ read_record.first_read_at.strftime('%Y-%m-%d %H:%M') if read_record else 'Just now' }}</span>
+        </div>
+        <div class="flex items-center justify-between text-slate-300">
+          <span>View Count:</span>
+          <span class="font-bold text-indigo-400">{{ read_record.view_count if read_record else 1 }} view(s)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

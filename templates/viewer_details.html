@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Viewer Roster Details - CampusPulse AI 360{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 p-6 rounded-2xl border border-slate-800">
+    <div>
+      <h1 class="text-xl font-extrabold text-white">Target Audience Viewer Roster</h1>
+      <p class="text-xs text-slate-400 mt-1">Notice: <span class="text-indigo-400 font-semibold">'{{ viewers_data.notice.title }}'</span></p>
+    </div>
+    <div class="flex items-center gap-3 text-xs">
+      <div class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-300">
+        Targeted: <span class="font-bold text-white">{{ viewers_data.total_targeted }}</span>
+      </div>
+      <div class="px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">
+        Acknowledged: <span class="font-bold text-emerald-400">{{ viewers_data.total_acked }}</span>
+      </div>
+      <div class="px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300">
+        Pending: <span class="font-bold text-amber-400">{{ viewers_data.total_pending }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Viewer Roster Table -->
+  <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+    <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+      <h3 class="font-bold text-sm text-white">Individual Student Engagement Records</h3>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-300">
+        <thead class="bg-slate-900/80 text-slate-400 font-semibold uppercase tracking-wider">
+          <tr>
+            <th class="p-4">Student Name</th>
+            <th class="p-4">Department & Year</th>
+            <th class="p-4">Status</th>
+            <th class="p-4">First Read</th>
+            <th class="p-4">Views</th>
+            <th class="p-4">Acknowledged At</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800">
+          {% for v in viewers_data.viewers %}
+            <tr class="hover:bg-slate-800/40 transition">
+              <td class="p-4 font-semibold text-white">
+                <div>{{ v.name }}</div>
+                <div class="text-[11px] font-normal text-slate-400">{{ v.email }}</div>
+              </td>
+              <td class="p-4 text-slate-400">{{ v.department or 'N/A' }} | {{ v.year or 'N/A' }}</td>
+              <td class="p-4">
+                <span class="px-2.5 py-1 text-[10px] font-extrabold rounded
+                  {% if v.status == 'ACKNOWLEDGED' %} bg-emerald-500/20 text-emerald-300 border border-emerald-500/30
+                  {% elif v.status == 'READ' %} bg-blue-500/20 text-blue-300 border border-blue-500/30
+                  {% else %} bg-amber-500/20 text-amber-300 border border-amber-500/30 {% endif %}">
+                  {{ v.status }}
+                </span>
+              </td>
+              <td class="p-4 text-slate-400">{{ v.first_read_at or 'Not Opened' }}</td>
+              <td class="p-4 font-mono font-bold text-slate-300">{{ v.view_count }}</td>
+              <td class="p-4 text-emerald-400 font-medium">{{ v.acknowledged_at or '-' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

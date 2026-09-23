@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Notice Analytics - {{ analytics.title }} - CampusPulse AI 360{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <!-- Header Banner -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 p-6 rounded-2xl border border-slate-800">
+    <div>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="px-2 py-0.5 text-[10px] font-extrabold rounded badge-medium">{{ analytics.priority }}</span>
+        <span class="text-xs text-indigo-400 font-semibold">{{ analytics.category }}</span>
+      </div>
+      <h1 class="text-xl font-extrabold text-white">{{ analytics.title }}</h1>
+      <p class="text-xs text-slate-400 mt-1">Communication Engagement & Reach Analytics</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="{{ url_for('viewer_details', notice_id=analytics.notice_id) }}" class="px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-lg shadow-indigo-600/30 flex items-center gap-1.5 transition">
+        <i data-lucide="users" class="w-4 h-4"></i> Inspect Viewer Roster
+      </a>
+    </div>
+  </div>
+
+  <!-- Metric KPI Cards Grid -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="glass-card p-4 rounded-xl border border-slate-800">
+      <div class="text-xs text-slate-400 font-semibold">Targeted Users</div>
+      <div class="text-2xl font-extrabold text-white mt-1">{{ analytics.targeted_count }}</div>
+      <div class="text-[11px] text-slate-500 mt-1">Eligible student count</div>
+    </div>
+
+    <div class="glass-card p-4 rounded-xl border border-slate-800">
+      <div class="text-xs text-slate-400 font-semibold">Unique Viewers (Read Rate)</div>
+      <div class="text-2xl font-extrabold text-blue-400 mt-1">{{ analytics.viewed_count }} <span class="text-xs font-normal">({{ analytics.read_rate }}%)</span></div>
+      <div class="text-[11px] text-slate-500 mt-1">{{ analytics.total_views }} total page views</div>
+    </div>
+
+    <div class="glass-card p-4 rounded-xl border border-slate-800">
+      <div class="text-xs text-slate-400 font-semibold">Acknowledgements</div>
+      <div class="text-2xl font-extrabold text-emerald-400 mt-1">{{ analytics.acked_count }} <span class="text-xs font-normal">({{ analytics.ack_rate }}%)</span></div>
+      <div class="text-[11px] text-amber-400 font-semibold mt-1">{{ analytics.pending_ack_count }} pending sign-offs</div>
+    </div>
+
+    <div class="glass-card p-4 rounded-xl border border-slate-800">
+      <div class="text-xs text-slate-400 font-semibold">Effectiveness Score</div>
+      <div class="text-2xl font-extrabold text-purple-400 mt-1">{{ analytics.effectiveness_score }} <span class="text-xs text-slate-400 font-normal">/ 100</span></div>
+      <div class="text-[11px] text-slate-500 mt-1">Weighted communication reach metric</div>
+    </div>
+  </div>
+
+  <!-- Risk Assessment Banner if active -->
+  {% if analytics.risk_assessment.has_risk %}
+  <div class="p-5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-200 space-y-3">
+    <div class="flex items-center gap-2 font-bold text-sm text-white">
+      <i data-lucide="alert-octagon" class="w-5 h-5 text-rose-400"></i> Communication Risk Detected
+      <span class="px-2 py-0.5 text-[10px] font-extrabold rounded badge-critical">{{ analytics.risk_assessment.severity }}</span>
+    </div>
+    <p class="text-xs text-rose-300">{{ analytics.risk_assessment.summary }}</p>
+    <div class="text-xs font-semibold text-white bg-rose-950/60 p-3 rounded-lg border border-rose-800/50">
+      <span class="text-rose-400 font-bold">Recommended Action:</span> {{ analytics.risk_assessment.recommended_action }}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Funnel Chart & QR Scan Stats -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Notice Communication Funnel -->
+    <div class="lg:col-span-2 glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+      <h3 class="font-bold text-sm text-white">Notice Reach Funnel</h3>
+      <div class="h-64">
+        <canvas id="noticeFunnelChart"></canvas>
+      </div>
+    </div>
+
+    <!-- QR Scan Stats Card -->
+    <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+      <h3 class="font-bold text-sm text-white flex items-center justify-between">
+        <span>QR Scan Analytics</span>
+        <i data-lucide="qr-code" class="w-4 h-4 text-indigo-400"></i>
+      </h3>
+
+      <div class="space-y-3 text-xs">
+        <div class="flex items-center justify-between p-3 rounded bg-slate-900 border border-slate-800">
+          <span class="text-slate-400">Total Scans:</span>
+          <span class="font-bold text-white text-base">{{ qr_stats.total_scans }}</span>
+        </div>
+        <div class="flex items-center justify-between p-3 rounded bg-slate-900 border border-slate-800">
+          <span class="text-slate-400">Unique Sessions:</span>
+          <span class="font-bold text-indigo-400 text-base">{{ qr_stats.unique_sessions }}</span>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800">
+          <div class="font-semibold text-slate-400 mb-2">Device Breakdown</div>
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="p-2 rounded bg-slate-900 border border-slate-800">
+              <div class="text-slate-500">Mobile</div>
+              <div class="font-bold text-emerald-400">{{ qr_stats.mobile_count }}</div>
+            </div>
+            <div class="p-2 rounded bg-slate-900 border border-slate-800">
+              <div class="text-slate-500">Desktop</div>
+              <div class="font-bold text-blue-400">{{ qr_stats.desktop_count }}</div>
+            </div>
+            <div class="p-2 rounded bg-slate-900 border border-slate-800">
+              <div class="text-slate-500">Tablet</div>
+              <div class="font-bold text-purple-400">{{ qr_stats.tablet_count }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('noticeFunnelChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Targeted', 'Viewed', 'Read', 'Acknowledged'],
+        datasets: [{
+          data: [{{ analytics.targeted_count }}, {{ analytics.viewed_count }}, {{ analytics.read_count }}, {{ analytics.acked_count }}],
+          backgroundColor: ['#6366f1', '#3b82f6', '#a855f7', '#22c55e'],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+          x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}{{ notice.title }} - Public Mobile Verification - CampusPulse AI{% endblock %}
+
+{% block guest_content %}
+<div class="w-full max-w-lg mx-auto space-y-4">
+  <!-- Brand Header -->
+  <div class="text-center mb-4">
+    <div class="inline-flex w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 items-center justify-center shadow-lg shadow-indigo-500/25 mb-1">
+      <i data-lucide="qr-code" class="w-5 h-5 text-white"></i>
+    </div>
+    <h1 class="text-lg font-bold text-white tracking-tight">CampusPulse <span class="text-indigo-400">AI 360</span></h1>
+    <p class="text-[11px] text-slate-400">Official Mobile Public Notice Verification</p>
+  </div>
+
+  <!-- Main Notice Card -->
+  <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4 shadow-2xl">
+    <div class="flex items-center justify-between gap-2">
+      <span class="px-2.5 py-1 text-[10px] font-extrabold rounded badge-medium">{{ notice.priority }}</span>
+      <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+        ✓ Verified Authentic
+      </span>
+    </div>
+
+    <h2 class="text-xl font-extrabold text-white leading-snug">{{ notice.title }}</h2>
+
+    <div class="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-3">
+      <span>Category: <strong class="text-indigo-300">{{ notice.category }}</strong></span>
+      <span>Deadline: <strong class="text-amber-400">{{ notice.deadline or 'N/A' }}</strong></span>
+    </div>
+
+    <!-- AI Executive Summary -->
+    {% if notice.summary %}
+    <div class="p-3.5 rounded-xl bg-purple-950/40 border border-purple-800/40 space-y-1">
+      <div class="text-[11px] font-bold text-purple-300 flex items-center gap-1.5">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> AI Executive Summary
+      </div>
+      <p class="text-xs text-purple-100/90 italic leading-relaxed">{{ notice.summary }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Full Notice Content -->
+    <div>
+      <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Official Content</h3>
+      <div class="text-xs text-slate-200 leading-relaxed whitespace-pre-line bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+        {{ notice.content }}
+      </div>
+    </div>
+
+    <!-- Footer Notice Banner -->
+    <div class="text-center pt-2 border-t border-slate-800 text-[11px] text-slate-500">
+      Verified by Greenfield Institute of Technology Communication System
+    </div>
+  </div>
+</div>
+{% endblock %}
